@@ -92,7 +92,7 @@
                 </div>
                 <!-- ovo izmeniti da bude izbor -->
                 <div class="form-group m-3">
-                    <input class="form-control" type="text" name="kategorija" placeholder="Kategorija" required>
+                    <input class="form-control" type="number" name="kategorijaID" placeholder="Kategorija" required>
                 </div>
                 <!-- END ovo izmeniti da bude izbor -->
                 <div class="form-group m-3">
