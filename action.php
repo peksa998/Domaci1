@@ -9,6 +9,7 @@
     if(isset($_POST['action']) && $_POST['action'] == "view") {
         $output = '';
         $data = $db->read();
+        $dataKat = $kat->readKategorija();
         if($db->totalRowCount()>0) {
             $output = '<table class="table table-striped table-sm table-bordered"><thead>
             <tr class="text-center">
@@ -24,6 +25,10 @@
             <tbody>';
 
             foreach ($data as $row) {
+                // $pom = (int) $row['kategorijaID'];
+                // echo "<script>console.log('Console: " . $pom . "' );</script>";
+                // $kategorija = $kat->getKategorijaById($pom);
+                // umesto .$row['kategorijaID']. ide .$kategorija['kategorija'].
                 $output .= ' <tr class="text-center text-secondary">
                     <td>'.$row['ime'].'</td>
                     <td>'.$row['prezime'].'</td>
@@ -41,7 +46,38 @@
                 $output .= '</tbody></table>';
                 echo $output;
         } else {
-            echo '<h3 class = "text-center text-secondary mt-5">:( No any user present in the database!)</h3>';
+            echo '<h3 class = "text-center text-secondary mt-5">:( No any user present in the database!</h3>';
+        }
+    }
+
+    // prikaz kategorija
+    if(isset($_POST['action']) && $_POST['action'] == "viewKategorija") {
+        $output = '';
+        $dataKat = $kat->readKategorija();
+        if($kat->totalRowCountKategorija()>0) {
+            $output = '<table class="table table-striped table-sm table-bordered"><thead>
+            <tr class="text-center">
+
+                <th>Naziv kategorije</th>
+                <th>Akcija</th>
+            </tr>
+            </thead>
+
+            <tbody>';
+
+            foreach ($dataKat as $row) {
+
+                $output .= ' <tr class="text-center text-secondary">
+                    <td>'.$row['kategorija'].'</td>
+                    <td>
+                        <a href="#" title="Delite" class="text-danger delBtnKategorija" id="'.$row['kategorijaID'].'"><i class="fas fa-trash-alt fa-md ml-3"></i></a>
+                    </td>
+                    </tr>';
+                }
+                $output .= '</tbody></table>';
+                echo $output;
+        } else {
+            echo '<h3 class = "text-center text-secondary mt-5">:( No any category present in the database!</h3>';
         }
     }
 
@@ -53,6 +89,13 @@
         $telefon = $_POST['telefon'];
 
         $db->insert($ime, $prezime, $kategorijaID, $email, $telefon);
+    }
+
+    // dodaj kategoriju
+    if(isset($_POST['action']) && $_POST['action'] == "insertKategorija") {
+        $kategorija = $_POST['kategorija'];
+
+        $kat->insertKategorija($kategorija);
     }
 
 
@@ -80,10 +123,17 @@
         $db->delete($id);
     }
 
+    if(isset($_POST['deleteKategorija_id'])) {
+
+        $id = $_POST['deleteKategorija_id'];
+        echo "<script>console.log('Console: " . $id . "' );</script>";
+        $kat->deleteKategorija($id);
+    }
+
     if(isset($_POST['info_id'])) {
         $id = $_POST['info_id'];
 
-        $row  =$db->getKontaktById($id);
+        $row  = $db->getKontaktById($id);
         echo json_encode($row);
     }
 

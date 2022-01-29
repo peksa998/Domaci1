@@ -26,11 +26,18 @@
 <div class="container">
     <!-- NOVI KORISNIK -->
     <div class="d-flex flex-row-reverse">
+
                     <!-- Button trigger modal -->
         <button type="button" class="btn btn-primary m-3 float-right" data-bs-toggle="modal" data-bs-target="#addModal">
         <i class="fas fa-user-plus fa-md"></i> Novi Kontakt
         </button>
 
+                    <!-- Button trigger modal Kategorija -->
+        <a href="kategorije.php">
+        <button type="button" class="btn btn-success m-3 float-right" data-bs-toggle="modal" data-bs-target="#addKategorija">
+        <i class="fas fa-folder-open fa-md"></i> Dodaj Kategoriju
+        </button>
+        </a>
     </div>
     <hr class="my-0 mb-4">
     <!-- END NOVI KORISNIK -->
@@ -83,6 +90,7 @@
     </div>
   </div>
 </div>
+<!-- END Modal Novi Korisnik -->
 
 <!-- Modal Edit Korisnik -->
 <div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
@@ -125,6 +133,36 @@
 </div>
 <!-- END Modal Edit Korisnik -->
 
+<!-- Modal Nova Kategorija -->
+<div class="modal fade" id="addKategorija" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Nova Kategorija</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+
+            <div class="table-responsive" id="showKategorije">
+
+            </div>
+        
+            <form action="" method="post" id="form-kategorija">
+                <div class="form-group m-3">
+                    <input class="form-control" type="text" name="kategorija" placeholder="Naziv kategorije" required>
+                </div>
+                            <!-- sub dugme -->
+                <div class="form-group m-3">
+                    <input class="btn btn-primary" type="submit" name="insertKategorija" id="insertKategorija" value="Sacuvaj Kategoriju">
+                </div>
+            </form>
+
+      </div>
+    </div>
+  </div>
+</div>
+<!-- END Modal Nova Kategorija -->
+
 
 <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.10.2/dist/umd/popper.min.js" integrity="sha384-7+zCNj/IqJ95wo16oMtfsKbZ9ccEh31eOz1HGyDuCQ6wgnyJNSYdrPa03rtR1zdB" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.min.js" integrity="sha384-QJHtvGhmr9XOIpI6YVutG+2QOK9T+ZnN4kzFN1RtK3zEFEIsxhlmWl5/YESvpZ13" crossorigin="anonymous"></script>
@@ -138,6 +176,7 @@
         $(document).ready(function () {
 
             showAllKontakte();
+            showAllKategorije();
 
             function showAllKontakte() {
                 $.ajax({
@@ -150,6 +189,22 @@
                   $('table').DataTable({
                       order: [0, 'desc']
                   });
+                }
+                });
+            }
+
+            // ispis kategorija
+            function showAllKategorije() {
+                $.ajax({
+                    url: "action.php",
+                    type: "POST",
+                    data: {action:"viewKategorija"},
+                success:function(response) {
+                  //  console.log(response);
+                  $("#showKategorije").html(response);
+                //   $('table').DataTable({
+                //       order: [0, 'desc']
+                //   });
                 }
                 });
             }
@@ -237,6 +292,7 @@
                     type: "POST",
                     data:  {del_id:del_id},
                     success:function(response) {
+                       
                         Swal.fire({
                             title: 'Kontakt je uspesno izbrisan!',
                             icon: 'success'
@@ -245,7 +301,39 @@
                     }
                    });
                 }
-            })
+            });
+          });
+
+                // Delete kategoriju ajax request
+            $("body").on("click", ".delBtnKategorija", function(e) {
+            e.preventDefault();
+            deleteKategorija_id = $(this).attr('id');
+
+                Swal.fire({
+                title: 'Are you sure?',
+                text: "You won't be able to revert this!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Yes, delete it!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                    url: "action.php",
+                    type: "POST",
+                    data:  {deleteKategorija_id:deleteKategorija_id},
+                    success:function(response) {
+                        console.log(deleteKategorija_id);
+                        Swal.fire({
+                            title: 'Kategorija je uspesno izbrisana!',
+                            icon: 'success'
+                        })
+                        showAllKategorije();
+                    }
+                   });
+                }
+            });
           });
 
           // show kontakt details
@@ -268,6 +356,27 @@
                     }
                    });
           });
+
+          // dodaj kategoriju
+          $("#insertKategorija").click(function(e) {
+               if($("#form-kategorija")[0].checkValidity()) {
+                   e.preventDefault();
+                   $.ajax({
+                    url: "action.php",
+                    type: "POST",
+                    data: $("#form-kategorija").serialize() + "&action=insertKategorija",
+                    success:function(response) {
+                        Swal.fire({
+                            title: 'Kategorija je uspesno dodata!',
+                            icon: 'success'
+                        })
+                        $("#addKategorija").modal('hide');
+                        $("#form-kategorija")[0].reset();
+                        showAllKategorije();
+                    }
+                   });
+               }
+           });
         });
   </script>
 </body>
