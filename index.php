@@ -38,42 +38,14 @@
     <div class="row">
         <div class="col-lg-12">
             <div class="table-responsive" id="showUser">
-                <table class="table table-striped table-sm table-bordered">
-                    <thead>
-                        <tr class="text-center">
-                            <th>Ime</th>
-                            <th>Prezime</th>
-                            <th>Kategorija</th>
-                            <th>E-Mail</th>
-                            <th>Telefon</th>
-                            <th>Akcija</th>
-                        </tr>
-                    </thead>
 
-                    <tbody>
-                        <?php for($i=1; $i<=100; $i++): ?>
-                        <tr class="text-center text-secondary">
-                            <td>Ime<?= $i?></td>
-                            <td>Prezime<?= $i?></td>
-                            <td>Kategorija<?= $i?></td>
-                            <td><?= $i?>@email.com</td>
-                            <td>555-<?= $i?></td>
-                            <td>
-                                <a href="#" title="View Details" class="text-success"><i class="fas fa-info-circle fa-md mr-3"></i></a>
-                                <a href="#" title="Edit" class="text-primary"><i class="fas fa-edit fa-md mx-3"></i></a>
-                                <a href="#" title="Delite" class="text-danger"><i class="fas fa-trash-alt fa-md ml-3"></i></a>
-                            </td>
-                        </tr>
-                        <?php endfor;?>
-                    </tbody>
-                </table>
             </div>
         </div>
     </div>
 </div>
 <!-- END TABELA -->
 
-<!-- Modal -->
+<!-- Modal Novi Korisnik -->
 <div class="modal fade" id="addModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
@@ -112,6 +84,47 @@
   </div>
 </div>
 
+<!-- Modal Edit Korisnik -->
+<div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Izmeni Kontakt</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        
+            <form action="" method="post" id="edit-form-data">
+            <input type="hidden" name="id" id="id">
+                <div class="form-group m-3">
+                    <input class="form-control" type="text" name="ime" id="ime" required>
+                </div>
+                <div class="form-group m-3">
+                    <input class="form-control" type="text" name="prezime" id="prezime" required>
+                </div>
+                <!-- ovo izmeniti da bude izbor -->
+                <div class="form-group m-3">
+                    <input class="form-control" type="number" name="kategorijaID" id="kategorijaID" required>
+                </div>
+                <!-- END ovo izmeniti da bude izbor -->
+                <div class="form-group m-3">
+                    <input class="form-control" type="email" name="email" id="email" required>
+                </div>
+                <div class="form-group m-3">
+                    <input class="form-control" type="tel" name="telefon" id="telefon" required>
+                </div>
+                            <!-- sub dugme -->
+                <div class="form-group m-3">
+                    <input class="btn btn-primary" type="submit" name="update" id="update" value="Izmeni Kontakt">
+                </div>
+            </form>
+
+      </div>
+    </div>
+  </div>
+</div>
+<!-- END Modal Edit Korisnik -->
+
 
 <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.10.2/dist/umd/popper.min.js" integrity="sha384-7+zCNj/IqJ95wo16oMtfsKbZ9ccEh31eOz1HGyDuCQ6wgnyJNSYdrPa03rtR1zdB" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.min.js" integrity="sha384-QJHtvGhmr9XOIpI6YVutG+2QOK9T+ZnN4kzFN1RtK3zEFEIsxhlmWl5/YESvpZ13" crossorigin="anonymous"></script>
@@ -123,7 +136,138 @@
   <script type="text/javascript" src="https://cdn.datatables.net/v/bs5/dt-1.11.4/datatables.min.js"></script>
   <script type="text/javascript">
         $(document).ready(function () {
-            $('table').DataTable();
+
+            showAllKontakte();
+
+            function showAllKontakte() {
+                $.ajax({
+                    url: "action.php",
+                    type: "POST",
+                    data: {action:"view"},
+                success:function(response) {
+                  //  console.log(response);
+                  $("#showUser").html(response);
+                  $('table').DataTable({
+                      order: [0, 'desc']
+                  });
+                }
+                });
+            }
+
+           // insert ajax request
+           $("#insert").click(function(e) {
+               if($("#form-data")[0].checkValidity()) {
+                   e.preventDefault();
+                   $.ajax({
+                    url: "action.php",
+                    type: "POST",
+                    data: $("#form-data").serialize() + "&action=insert",
+                    success:function(response) {
+                        Swal.fire({
+                            title: 'Kontakt je uspesno dodat!',
+                            icon: 'success'
+                        })
+                        $("#addModal").modal('hide');
+                        $("#form-data")[0].reset();
+                        showAllKontakte();
+                    }
+                   });
+               }
+           });
+
+           // edit kontakt
+           $("body").on("click", ".editBtn", function(e) {
+                e.preventDefault();
+                edit_id = $(this).attr('id');
+                $.ajax({
+                    url: "action.php",
+                    type: "POST",
+                    data: {edit_id:edit_id},
+                    success:function(response) {
+                        data = JSON.parse(response);
+                        $("#id").val(data.id);
+                        $("#ime").val(data.ime);
+                        $("#prezime").val(data.prezime);
+                        $("#kategorijaID").val(data.kategorijaID);
+                        $("#email").val(data.email);
+                        $("#telefon").val(data.telefon);
+                    }
+                });
+           });
+
+
+            // update ajax request
+            $("#update").click(function(e) {
+                    if($("#edit-form-data")[0].checkValidity()) {
+                   e.preventDefault();
+                   $.ajax({
+                    url: "action.php",
+                    type: "POST",
+                    data: $("#edit-form-data").serialize() + "&action=update",
+                    success:function(response) {
+                        Swal.fire({
+                            title: 'Kontakt je uspesno izmenjen!',
+                            icon: 'success'
+                        })
+                        $("#editModal").modal('hide');
+                        $("#edit-form-data")[0].reset();
+                        showAllKontakte();
+                    }
+                   });
+               }
+           });
+
+          // Delete ajax request
+          $("body").on("click", ".delBtn", function(e) {
+            e.preventDefault();
+            del_id = $(this).attr('id');
+
+            Swal.fire({
+                title: 'Are you sure?',
+                text: "You won't be able to revert this!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Yes, delete it!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                    url: "action.php",
+                    type: "POST",
+                    data:  {del_id:del_id},
+                    success:function(response) {
+                        Swal.fire({
+                            title: 'Kontakt je uspesno izbrisan!',
+                            icon: 'success'
+                        })
+                        showAllKontakte();
+                    }
+                   });
+                }
+            })
+          });
+
+          // show kontakt details
+          $("body").on("click", ".infoBtn", function(e) {
+            e.preventDefault();
+            info_id = $(this).attr('id');
+            $.ajax({
+                    url: "action.php",
+                    type: "POST",
+                    data:  {info_id:info_id},
+                    success:function(response) {
+                        //console.log(response);
+                        data = JSON.parse(response);
+                        Swal.fire({
+                            title: '<strong>Informacije o kontaktu</strong>',
+                            icon: 'info',
+                            html: '<b>Ime: </b>'+data.ime+'<br><b>Prezime: </b>'+data.prezime+'<br><b>Kategorija: </b>'+data.kategorijaID+'<br><b>E-mail: </b>'+data.email+'<br><b>Telefon: </b>'+data.telefon+'<br>',
+                        })
+                        showAllKontakte();
+                    }
+                   });
+          });
         });
   </script>
 </body>
