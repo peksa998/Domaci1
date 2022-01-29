@@ -36,7 +36,7 @@
         }
 
         public function getKategorijaById($id) {
-            $sql = "SELECT * FROM kategorija WHERE kategorijaID = :id";
+            $sql = "SELECT * FROM kategorija WHERE kategorijaID = $id";
             $stmt = $this->conn->prepare($sql);
             $stmt->execute(['kategorijaID'=>$id]);
             $result = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -50,14 +50,14 @@
             return true;
         }
 
-        public function deletekategorija($id) {
+        public function deleteKategorija($id) {
             $sql = "DELETE FROM kategorija WHERE kategorijaID = :id";
             $stmt = $this->conn->prepare($sql);
             $stmt->execute(['kategorijaID'=>$id]);
             return true;
         }
 
-        public function totalRoWCountKategorija() {
+        public function totalRowCountKategorija() {
             $sql = "SELECT * FROM kategorija";
             $stmt = $this->conn->prepare($sql);
             $stmt->execute();
