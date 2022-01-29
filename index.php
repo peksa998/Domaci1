@@ -33,10 +33,11 @@
         </button>
 
                     <!-- Button trigger modal Kategorija -->
+        <a href="kategorije.php">
         <button type="button" class="btn btn-success m-3 float-right" data-bs-toggle="modal" data-bs-target="#addKategorija">
         <i class="fas fa-folder-open fa-md"></i> Dodaj Kategoriju
         </button>
-
+        </a>
     </div>
     <hr class="my-0 mb-4">
     <!-- END NOVI KORISNIK -->
